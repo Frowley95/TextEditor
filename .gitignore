@@ -37,7 +37,7 @@ env.bak/
 venv.bak/
 
 # VSC configurations
-.vscode
+.vscode/
 
 # Workspace debug files
 usercode/debug[0-9].txt

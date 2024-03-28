@@ -20,8 +20,7 @@ class UserWindow:
 
     def create_nav_bar(self):
         """ Initializes navigation bar """
-        print("Test: CreateNavBar")
-
+        print("Test: End of create_nav_bar")
     def file_into_textbox(self):
         """ Opens latest file if it exists. Else, create new file menu. """
         file_handle = HandleFiles()
