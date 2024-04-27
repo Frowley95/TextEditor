@@ -1,10 +1,12 @@
-""" Module to execute the program """
+"""Module to execute program"""
 
-from window import UserWindow
+from src.app import App
+
 
 def main() -> None:
-    """ Start application """
-    UserWindow()
+    """Start application"""
+    App()
+
 
 if __name__ == '__main__':
     main()
