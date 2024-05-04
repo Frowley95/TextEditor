@@ -1,6 +1,6 @@
 """Module to execute program"""
 
-from src.app import App
+from app import App
 
 
 def main() -> None:
