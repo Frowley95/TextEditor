@@ -7,17 +7,17 @@ from os.path import abspath
 from tkinter import Menu, filedialog, END, Text, ttk
 from tkinter.messagebox import showinfo
 
+current_file = ""
+
 
 def open_file(file) -> None:
     """Open a file"""
 
-    try:
+    global current_file
+    current_file = file
 
-        with open(file, 'r', encoding="UTF-8") as file:
-            file = file.read()
-
-    except FileNotFoundError:
-        return
+    with open(current_file, 'r', encoding="UTF-8") as file:
+        file = file.read()
 
     Textbox.textbox.delete("1.0", END)
     Textbox.textbox.insert(END, file)
@@ -31,11 +31,11 @@ class App(tkinter.Tk):
 
         self.workspace_dir = abspath("../workspace/")
 
-        app_width, app_height = self.winfo_screenwidth()//2, self.winfo_screenheight()//2
+        app_width, app_height = self.winfo_screenwidth() // 2, self.winfo_screenheight() // 2
         screen_width, screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
 
-        mid_x = (screen_width - app_width)//2
-        mid_y = (screen_height - app_height)//2
+        mid_x = (screen_width - app_width) // 2
+        mid_y = (screen_height - app_height) // 2
 
         self.title("Text Editor")
         self.iconbitmap(abspath('../data/favicon.ico'))
@@ -49,7 +49,7 @@ class App(tkinter.Tk):
         self.mainloop()
 
 
-class FileTree(ttk.Frame):  # FIXME: Create filesystem hierarchy display data structure
+class FileTree(ttk.Frame):
     """Filesystem hierarchy display"""
 
     def __init__(self, parent):
@@ -76,6 +76,7 @@ class Navbar(ttk.Frame):
         file_menu.add_command(label="Open (Ctrl+O)", command=self.menu_open_file)
         file_menu.add_command(label="Open Folder", command=self.menu_open_folder)
         file_menu.add_command(label="Save (Ctrl+S)", command=self.menu_save_file)
+        file_menu.add_command(label="Save As", command=self.menu_save_as_file)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=quit)
 
@@ -94,14 +95,36 @@ class Navbar(ttk.Frame):
 
         file = filedialog.askopenfilename(filetypes=[("all files", "*.*")],
                                           initialdir="../workspace/",
-                                          title="Select a text file")
-        open_file(file)
+                                          title="Open file")
+        if file:
+            open_file(file)
 
     def menu_open_folder(self):
         pass
 
-    def menu_save_file(self):
-        pass
+    @staticmethod
+    def menu_save_file():
+
+        global current_file
+
+        file = open(current_file, 'w')
+        file.write(Textbox.textbox.get(1.0, END))
+
+        file.close()
+
+    @staticmethod
+    def menu_save_as_file():
+        file = filedialog.asksaveasfilename(filetypes=[("all files", "*.*")],
+                                            initialdir="../workspace/",
+                                            title="Save file")
+        if file:
+            filename = file
+            filename = filename.replace("../workspace/", "")
+
+            file = open(filename, 'w')
+            file.write(Textbox.textbox.get(1.0, END))
+
+            file.close()
 
     def menu_undo_edit(self):
         pass
@@ -125,7 +148,7 @@ class Textbox(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        Textbox.textbox = Text(parent)  # FIXME: Add visible scrollbar
+        Textbox.textbox = Text(parent)
         Textbox.textbox.pack(expand=True, fill='both')
         Textbox.textbox.place(relx=0.3, y=0, relwidth=0.7, relheight=1)
 
@@ -133,11 +156,12 @@ class Textbox(ttk.Frame):
 class Startup(ttk.Frame):
     def __init__(self, parent, workspace_dir):
         super().__init__(parent)
+
         self.workspace_dir = workspace_dir
 
         self.return_latest_file()
 
-    def find_latest_file(self):  # FIXME: Remake to save current file/workspace on quit instead of iteration
+    def find_latest_file(self):
         """Find latest file determined by date modified"""
 
         recent_time = 0
@@ -176,7 +200,10 @@ class Startup(ttk.Frame):
             else:
                 recent_file_abspath = abspath(filename)
 
-        with open(recent_file_abspath, 'rt', encoding="UTF-8") as file:
+        global current_file
+        current_file = recent_file_abspath
+
+        with open(current_file, 'rt', encoding="UTF-8") as file:
             file = file.read()
 
         Textbox.textbox.insert(END, file)
