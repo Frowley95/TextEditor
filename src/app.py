@@ -41,16 +41,16 @@ class App(tkinter.Tk):
         self.iconbitmap(abspath('../data/favicon.ico'))
         self.geometry(f'{app_width}x{app_height}+{mid_x}+{mid_y}')
 
-        self.filetree = FileTree(self)
-        self.textbox = Textbox(self)
-        self.navbar = Navbar(self)
-        self.startup = Startup(self, self.workspace_dir)
+        FileTree(self)
+        Textbox(self)
+        Navbar(self)
+        Startup(self, self.workspace_dir)
 
         self.mainloop()
 
 
 class FileTree(ttk.Frame):
-    """Filesystem hierarchy display"""
+    """File tree display"""
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -60,7 +60,7 @@ class FileTree(ttk.Frame):
 
 
 class Navbar(ttk.Frame):
-    """Navigation display"""
+    """Navigation bar display"""
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -104,6 +104,7 @@ class Navbar(ttk.Frame):
 
     @staticmethod
     def menu_save_file():
+        """Saves file"""
 
         global current_file
 
@@ -114,6 +115,8 @@ class Navbar(ttk.Frame):
 
     @staticmethod
     def menu_save_as_file():
+        """Saves file as"""
+
         file = filedialog.asksaveasfilename(filetypes=[("all files", "*.*")],
                                             initialdir="../workspace/",
                                             title="Save file")
@@ -143,6 +146,8 @@ class Navbar(ttk.Frame):
 
 
 class Textbox(ttk.Frame):
+    """Text box display"""
+
     textbox = None
 
     def __init__(self, parent):
@@ -154,6 +159,8 @@ class Textbox(ttk.Frame):
 
 
 class Startup(ttk.Frame):
+    """Initialize the app"""
+
     def __init__(self, parent, workspace_dir):
         super().__init__(parent)
 
@@ -175,9 +182,9 @@ class Startup(ttk.Frame):
             return
 
         for entry in scandir(self.workspace_dir):
-
             if entry.is_file():
                 date_modified = entry.stat().st_mtime_ns
+
                 if date_modified > recent_time:
                     recent_file = entry.name
                     recent_time = date_modified
@@ -186,19 +193,20 @@ class Startup(ttk.Frame):
 
     def return_latest_file(self):
         """Return latest file"""
+
         recent_file_abspath = self.find_latest_file()
 
         if recent_file_abspath is None:
             showinfo("File not found", "Please select a file to use!")
-            filename = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt"),
-                                                             ("Python Files", "*.py"), ("All Files", "*.*")],
-                                                  initialdir=self.workspace_dir,
-                                                  title="Select a text file")
+            requested_file = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt"), ("Python Files", "*.py"),
+                                                                   ("All Files", "*.*")],
+                                                        initialdir=self.workspace_dir,
+                                                        title="Select a text file")
 
-            if filename == "":  # If no file is selected, don't display any file
+            if requested_file == "":  # If no file is selected, don't display any file
                 return
             else:
-                recent_file_abspath = abspath(filename)
+                recent_file_abspath = abspath(requested_file)
 
         global current_file
         current_file = recent_file_abspath
